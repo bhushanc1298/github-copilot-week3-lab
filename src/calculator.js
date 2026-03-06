@@ -8,6 +8,9 @@
  * - Subtraction (-)
  * - Multiplication (*)
  * - Division (/)
+ * - Modulo (%)
+ * - Power (^)
+ * - Square Root (√)
  */
 
 const readline = require('readline');
@@ -35,6 +38,25 @@ const calculator = {
       throw new Error('Cannot divide by zero');
     }
     return a / b;
+  },
+
+  // Modulo operation
+  modulo: (a, b) => {
+    if (b === 0) {
+      throw new Error('Cannot perform modulo by zero');
+    }
+    return a % b;
+  },
+
+  // Power operation
+  power: (base, exponent) => Math.pow(base, exponent),
+
+  // Square root operation
+  squareRoot: (n) => {
+    if (n < 0) {
+      throw new Error('Cannot compute square root of negative number');
+    }
+    return Math.sqrt(n);
   }
 };
 
@@ -51,7 +73,8 @@ if (typeof module !== 'undefined' && module.exports) {
 // Main calculator function
 function startCalculator() {
   console.log('🧮 Welcome to the Node.js CLI Calculator!');
-  console.log('Supported operations: + (add), - (subtract), * (multiply), / (divide)');
+  console.log('Supported operations: + (add), - (subtract), * (multiply), / (divide), % (modulo), ^ (power)');
+  console.log('Special function: sqrt(n) for square root');
   console.log('Type "exit" to quit\n');
 
   promptUser();
@@ -81,11 +104,18 @@ function promptUser() {
 function evaluateExpression(input) {
   const trimmed = input.trim();
   
+  // Check for square root function
+  const sqrtMatch = trimmed.match(/^sqrt\s*\(\s*(-?\d+\.?\d*)\s*\)$/);
+  if (sqrtMatch) {
+    const num = parseFloat(sqrtMatch[1]);
+    return calculator.squareRoot(num);
+  }
+  
   // Match pattern: number operator number
-  const match = trimmed.match(/^(-?\d+\.?\d*)\s*([\+\-\*\/])\s*(-?\d+\.?\d*)$/);
+  const match = trimmed.match(/^(-?\d+\.?\d*)\s*([\+\-\*\/\%\^])\s*(-?\d+\.?\d*)$/);
   
   if (!match) {
-    throw new Error('Invalid expression. Use format: number operator number');
+    throw new Error('Invalid expression. Use format: number operator number, or sqrt(n)');
   }
 
   const num1 = parseFloat(match[1]);
@@ -101,6 +131,10 @@ function evaluateExpression(input) {
       return calculator.multiply(num1, num2);
     case '/':
       return calculator.divide(num1, num2);
+    case '%':
+      return calculator.modulo(num1, num2);
+    case '^':
+      return calculator.power(num1, num2);
     default:
       throw new Error('Unknown operator');
   }
